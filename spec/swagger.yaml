@@ -319,7 +319,7 @@ paths:
             properties:
               user_count:
                 type: integer
-              balamnce_sum:
+              balance_sum:
                 type: string
                 pattern: '\d+(\.\d*)?'
                 format: float
