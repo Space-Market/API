@@ -10,9 +10,15 @@ consumes:
   - application/json
 produces:
   - application/json
+tags:
+  - name: drinks
+  - name: users
+  - name: audits
 paths:
   /audits.json:
     get:
+      tags:
+        - audits
       summary: statistics about previous transactions
       description: |
         statistics about previous transactions
@@ -86,6 +92,8 @@ paths:
                       type: integer
   /drinks.json:
     get:
+      tags:
+        - drinks
       summary: returns all drinks
       responses:
         200:
@@ -95,6 +103,8 @@ paths:
             items:
               $ref: "#/definitions/Drink"
     post:
+      tags:
+        - drinks
       summary: creates a new drink
       parameters:
         - in: body
@@ -110,6 +120,8 @@ paths:
 
   /drinks/{id}.json:
     get:
+      tags:
+        - drinks
       summary: returns specific drink
       parameters:
         - in: path
@@ -122,6 +134,8 @@ paths:
           schema:
             $ref: "#/definitions/Drink"
     patch:
+      tags:
+        - drinks
       summary: edits specific drink
       parameters:
         - in: path
@@ -139,6 +153,8 @@ paths:
           schema:
             $ref: "#/definitions/Drink"
     delete:
+      tags:
+        - drinks
       summary: deletes specific drink
       parameters:
         - in: path
@@ -150,6 +166,8 @@ paths:
           description: successfully deleted
   /users.json:
     get:
+      tags:
+        - users
       summary: returns all users
       responses:
         200:
@@ -159,6 +177,8 @@ paths:
             items:
               $ref: '#/definitions/User'
     post:
+      tags:
+        - users
       summary: creates new User
       parameters:
         - in: body
@@ -173,6 +193,8 @@ paths:
             $ref: '#/definitions/User'
   /users/{id}.json:
     get:
+      tags:
+        - users
       summary: returns specific user
       parameters:
         - in: path
@@ -185,6 +207,8 @@ paths:
           schema:
             $ref: '#/definitions/User'
     patch:
+      tags:
+        - users
       summary: edits specific user
       parameters:
         - in: path
@@ -202,6 +226,8 @@ paths:
           schema:
             $ref: '#/definitions/User'
     delete:
+      tags:
+        - users
       summary: deletes user
       parameters:
         - in: path
@@ -213,6 +239,8 @@ paths:
           description: success
   /users/{id}/deposit.json:
     get:
+      tags:
+        - users
       summary: adds amount (in €) to the balance of the user with id
       parameters:
         - in: path
@@ -228,6 +256,8 @@ paths:
           description: success
   /users/{id}/pay.json:
     get:
+      tags:
+        - users
       summary: subtracts amount (in €) from the balance of the user with id
       parameters:
         - in: path
@@ -243,6 +273,8 @@ paths:
           description: success
   /users/{id}/drink.json:
     get:
+      tags:
+        - users
       summary: buys drink with id drink from user with id
       parameters:
         - in: path
@@ -258,6 +290,8 @@ paths:
           description: success
   /users/{id}/buy_barcode.json:
     post:
+      tags:
+        - users
       summary: buys drink with barcode for user with id
       parameters:
         - in: path
@@ -274,6 +308,8 @@ paths:
           description: success
   /users/stats.json:
     get:
+      tags:
+        - users
       summary: stats about users
       responses:
         200:
