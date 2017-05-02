@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: API for transactions
-  version: 1.0.0
+  version: 2.0.0
   title: Space-Market
   license:
     name: MIT
@@ -63,17 +63,14 @@ paths:
               - audits
             properties:
               sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: sum as cents
+                type: integer
               payments_sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: as cents
+                type: integer
               deposits_sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: as cents
+                type: integer
               audits:
                 type: array
                 items:
@@ -85,9 +82,7 @@ paths:
                       type: string
                       format: date-time
                     difference:
-                      type: string
-                      pattern: '\d+(\.\d*)?'
-                      format: float
+                      type: integer
                     drink:
                       type: integer
   /drinks.json:
@@ -238,41 +233,41 @@ paths:
         200:
           description: success
   /users/{id}/deposit.json:
-    get:
+    post:
       tags:
         - users
-      summary: adds amount (in €) to the balance of the user with id
+      summary: adds amount (in cents) to the balance of the user with id
       parameters:
         - in: path
           required: true
           name: id
           type: integer
-        - in: query
-          required: true
+        - in: body
           name: amount
-          type: number
+          schema:
+            type: integer
       responses:
         200:
           description: success
   /users/{id}/pay.json:
-    get:
+    post:
       tags:
         - users
-      summary: subtracts amount (in €) from the balance of the user with id
+      summary: subtracts amount (in cents) from the balance of the user with id
       parameters:
         - in: path
           required: true
           name: id
           type: integer
-        - in: query
-          required: true
+        - in: body
           name: amount
-          type: number
+          schema:
+            type: integer
       responses:
         200:
           description: success
   /users/{id}/drink.json:
-    get:
+    post:
       tags:
         - users
       summary: buys drink with id drink from user with id
@@ -281,10 +276,10 @@ paths:
           required: true
           name: id
           type: integer
-        - in: query
-          required: true
+        - in: body
           name: drink
-          type: integer
+          schema:
+            type: integer
       responses:
         200:
           description: success
@@ -320,9 +315,8 @@ paths:
               user_count:
                 type: integer
               balance_sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: as cents
+                type: integer
 definitions:
   Drink:
     type: object
@@ -337,10 +331,8 @@ definitions:
         type: integer
         description: mg of caffeine per 100 ml
       price:
-        type: string
-        default: "1.5"
-        pattern: '\d+(\.\d*)?'
-        format: float
+        type: integer
+        default: 150
       logo_file_name:
         type: string
         format: uri
@@ -362,11 +354,6 @@ definitions:
       active:
         type: boolean
         default: true
-      donation_recommendation:
-        type: string
-        description: "DEPRECATED: alias for price"
-        pattern: '\d+(\.\d*)?'
-        format: float
       logo_url:
         type: string
         format: uri
@@ -387,9 +374,8 @@ definitions:
         type: string
         format: date-time
       balance:
-        type: string
-        pattern: \d+(\.\d+)?
-        format: float
+        description: in cents
+        type: integer
       active:
         type: boolean
         default: true
