@@ -11,7 +11,7 @@ consumes:
 produces:
   - application/json
 tags:
-  - name: drinks
+  - name: products
   - name: users
   - name: audits
 paths:
@@ -83,41 +83,41 @@ paths:
                       format: date-time
                     difference:
                       type: integer
-                    drink:
+                    product:
                       type: integer
-  /drinks.json:
+  /products.json:
     get:
       tags:
-        - drinks
-      summary: returns all drinks
+        - products
+      summary: returns all products
       responses:
         200:
-          description: drinks
+          description: products
           schema:
             type: array
             items:
-              $ref: "#/definitions/Drink"
+              $ref: "#/definitions/Product"
     post:
       tags:
-        - drinks
-      summary: creates a new drink
+        - products
+      summary: creates a new product
       parameters:
         - in: body
-          name: drink
+          name: product
           required: true
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
       responses:
         200:
-          description: newly created Drink
+          description: newly created Product
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
 
-  /drinks/{id}.json:
+  /products/{id}.json:
     get:
       tags:
-        - drinks
-      summary: returns specific drink
+        - products
+      summary: returns specific product
       parameters:
         - in: path
           required: true
@@ -125,32 +125,32 @@ paths:
           type: integer
       responses:
         200:
-          description: drink
+          description: product
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
     patch:
       tags:
-        - drinks
-      summary: edits specific drink
+        - products
+      summary: edits specific product
       parameters:
         - in: path
           required: true
           name: id
           type: integer
         - in: body
-          name: drink
+          name: product
           required: true
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
       responses:
         200:
-          description: edited Drink
+          description: edited Product
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
     delete:
       tags:
-        - drinks
-      summary: deletes specific drink
+        - products
+      summary: deletes specific product
       parameters:
         - in: path
           required: true
@@ -266,18 +266,18 @@ paths:
       responses:
         200:
           description: success
-  /users/{id}/drink.json:
+  /users/{id}/product.json:
     post:
       tags:
         - users
-      summary: buys drink with id drink from user with id
+      summary: buys product with id product from user with id
       parameters:
         - in: path
           required: true
           name: id
           type: integer
         - in: body
-          name: drink
+          name: product
           schema:
             type: integer
       responses:
@@ -287,7 +287,7 @@ paths:
     post:
       tags:
         - users
-      summary: buys drink with barcode for user with id
+      summary: buys product with barcode for user with id
       parameters:
         - in: path
           required: true
@@ -318,7 +318,7 @@ paths:
                 description: as cents
                 type: integer
 definitions:
-  Drink:
+  Product:
     type: object
     required:
       - name
@@ -329,7 +329,7 @@ definitions:
         type: string
       caffeine:
         type: integer
-        description: mg of caffeine per 100 ml
+        description: mg of caffeine per 100 ml/mg/unit
       price:
         type: integer
         default: 150
