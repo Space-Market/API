@@ -6,6 +6,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+basePath: '/v2'
 consumes:
   - application/json
 produces:
@@ -15,6 +16,12 @@ tags:
   - name: users
   - name: audits
 paths:
+  /info.json:
+    get:
+      description: V2 support
+      responses:
+        200:
+          description: indicates that v2 is supported. Future use may include capabilities.
   /audits.json:
     get:
       tags:
