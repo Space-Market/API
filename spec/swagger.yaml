@@ -1,20 +1,27 @@
 swagger: '2.0'
 info:
   description: API for transactions
-  version: 1.0.0
+  version: 2.0.0
   title: Space-Market
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+basePath: '/v2'
 consumes:
   - application/json
 produces:
   - application/json
 tags:
-  - name: drinks
+  - name: products
   - name: users
   - name: audits
 paths:
+  /info.json:
+    get:
+      description: V2 support
+      responses:
+        200:
+          description: indicates that v2 is supported. Future use may include capabilities.
   /audits.json:
     get:
       tags:
@@ -67,17 +74,14 @@ paths:
               - audits
             properties:
               sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: sum as cents
+                type: integer
               payments_sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: as cents
+                type: integer
               deposits_sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: as cents
+                type: integer
               audits:
                 type: array
                 items:
@@ -89,44 +93,42 @@ paths:
                       type: string
                       format: date-time
                     difference:
-                      type: string
-                      pattern: '\d+(\.\d*)?'
-                      format: float
-                    drink:
                       type: integer
-  /drinks.json:
+                    product:
+                      type: integer
+  /products.json:
     get:
       tags:
-        - drinks
-      summary: returns all drinks
+        - products
+      summary: returns all products
       responses:
         200:
-          description: drinks
+          description: products
           schema:
             type: array
             items:
-              $ref: "#/definitions/Drink"
+              $ref: "#/definitions/Product"
     post:
       tags:
-        - drinks
-      summary: creates a new drink
+        - products
+      summary: creates a new product
       parameters:
         - in: body
-          name: drink
+          name: product
           required: true
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
       responses:
         200:
-          description: newly created Drink
+          description: newly created Product
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
 
-  /drinks/{id}.json:
+  /products/{id}.json:
     get:
       tags:
-        - drinks
-      summary: returns specific drink
+        - products
+      summary: returns specific product
       parameters:
         - in: path
           required: true
@@ -134,32 +136,32 @@ paths:
           type: integer
       responses:
         200:
-          description: drink
+          description: product
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
     patch:
       tags:
-        - drinks
-      summary: edits specific drink
+        - products
+      summary: edits specific product
       parameters:
         - in: path
           required: true
           name: id
           type: integer
         - in: body
-          name: drink
+          name: product
           required: true
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
       responses:
         200:
-          description: edited Drink
+          description: edited Product
           schema:
-            $ref: "#/definitions/Drink"
+            $ref: "#/definitions/Product"
     delete:
       tags:
-        - drinks
-      summary: deletes specific drink
+        - products
+      summary: deletes specific product
       parameters:
         - in: path
           required: true
@@ -242,53 +244,53 @@ paths:
         200:
           description: success
   /users/{id}/deposit.json:
-    get:
+    post:
       tags:
         - users
-      summary: adds amount (in €) to the balance of the user with id
+      summary: adds amount (in cents) to the balance of the user with id
       parameters:
         - in: path
           required: true
           name: id
           type: integer
-        - in: query
-          required: true
+        - in: body
           name: amount
-          type: number
+          schema:
+            type: integer
       responses:
         200:
           description: success
   /users/{id}/pay.json:
-    get:
+    post:
       tags:
         - users
-      summary: subtracts amount (in €) from the balance of the user with id
+      summary: subtracts amount (in cents) from the balance of the user with id
       parameters:
         - in: path
           required: true
           name: id
           type: integer
-        - in: query
-          required: true
+        - in: body
           name: amount
-          type: number
+          schema:
+            type: integer
       responses:
         200:
           description: success
-  /users/{id}/drink.json:
-    get:
+  /users/{id}/product.json:
+    post:
       tags:
         - users
-      summary: buys drink with id drink from user with id
+      summary: buys product with id product from user with id
       parameters:
         - in: path
           required: true
           name: id
           type: integer
-        - in: query
-          required: true
-          name: drink
-          type: integer
+        - in: body
+          name: product
+          schema:
+            type: integer
       responses:
         200:
           description: success
@@ -296,7 +298,7 @@ paths:
     post:
       tags:
         - users
-      summary: buys drink with barcode for user with id
+      summary: buys product with barcode for user with id
       parameters:
         - in: path
           required: true
@@ -324,11 +326,10 @@ paths:
               user_count:
                 type: integer
               balance_sum:
-                type: string
-                pattern: '\d+(\.\d*)?'
-                format: float
+                description: as cents
+                type: integer
 definitions:
-  Drink:
+  Product:
     type: object
     required:
       - name
@@ -339,12 +340,10 @@ definitions:
         type: string
       caffeine:
         type: integer
-        description: mg of caffeine per 100 ml
+        description: mg of caffeine per 100 ml/mg/unit
       price:
-        type: string
-        default: "1.5"
-        pattern: '\d+(\.\d*)?'
-        format: float
+        type: integer
+        default: 150
       logo_file_name:
         type: string
         format: uri
@@ -366,11 +365,6 @@ definitions:
       active:
         type: boolean
         default: true
-      donation_recommendation:
-        type: string
-        description: "DEPRECATED: alias for price"
-        pattern: '\d+(\.\d*)?'
-        format: float
       logo_url:
         type: string
         format: uri
@@ -391,9 +385,8 @@ definitions:
         type: string
         format: date-time
       balance:
-        type: string
-        pattern: \d+(\.\d+)?
-        format: float
+        description: in cents
+        type: integer
       active:
         type: boolean
         default: true
