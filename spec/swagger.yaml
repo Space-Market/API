@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: API for transactions
-  version: 2.0.0
+  version: 2.1.0
   title: Space-Market
   license:
     name: MIT
@@ -18,10 +18,18 @@ tags:
 paths:
   /info.json:
     get:
-      description: V2 support
+      description: global server Information
       responses:
         200:
-          description: indicates that v2 is supported. Future use may include capabilities.
+          description: information
+          schema:
+            type: object
+            required:
+              - version
+            properties:
+              version:
+                type: string
+                example: "2.1"
   /audits.json:
     get:
       tags:
@@ -96,6 +104,8 @@ paths:
                       type: integer
                     product:
                       type: integer
+        500:
+          description: Server error
   /products.json:
     get:
       tags:
@@ -108,6 +118,8 @@ paths:
             type: array
             items:
               $ref: "#/definitions/Product"
+        500:
+          description: Server error
     post:
       tags:
         - products
@@ -117,12 +129,30 @@ paths:
           name: product
           required: true
           schema:
-            $ref: "#/definitions/Product"
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              caffeine:
+                type: integer
+                description: mg of caffeine per 100 ml/mg/unit
+              price:
+                type: integer
+                default: 150
+              active:
+                type: boolean
+                default: true
       responses:
         200:
           description: newly created Product
           schema:
             $ref: "#/definitions/Product"
+        400:
+          description: Invalid input
+        500:
+          description: Server error
 
   /products/{id}.json:
     get:
@@ -139,6 +169,10 @@ paths:
           description: product
           schema:
             $ref: "#/definitions/Product"
+        404:
+          description: id not existant
+        500:
+          description: Server error
     patch:
       tags:
         - products
@@ -152,12 +186,28 @@ paths:
           name: product
           required: true
           schema:
-            $ref: "#/definitions/Product"
+            type: object
+            properties:
+              name:
+                type: string
+              caffeine:
+                type: integer
+                description: mg of caffeine per 100 ml/mg/unit
+              price:
+                type: integer
+              active:
+                type: boolean
       responses:
         200:
           description: edited Product
           schema:
             $ref: "#/definitions/Product"
+        400:
+          description: Invalid input
+        404:
+          description: id not existant
+        500:
+          description: Server error
     delete:
       tags:
         - products
@@ -170,6 +220,10 @@ paths:
       responses:
         200:
           description: successfully deleted
+        404:
+          description: id not existant
+        500:
+          description: Server error
   /users.json:
     get:
       tags:
@@ -182,6 +236,8 @@ paths:
             type: array
             items:
               $ref: '#/definitions/User'
+        500:
+          description: Server error
     post:
       tags:
         - users
@@ -191,12 +247,37 @@ paths:
           required: true
           name: user
           schema:
-            $ref: '#/definitions/User'
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+              balance:
+                description: in cents
+                type: integer
+                default: 0
+              active:
+                type: boolean
+                default: true
+              audit:
+                type: boolean
+                default: false
+              redirect:
+                type: boolean
+                default: false
       responses:
         200:
           description: new user
           schema:
             $ref: '#/definitions/User'
+        400:
+          description: Invalid input
+        500:
+          description: Server error
   /users/{id}.json:
     get:
       tags:
@@ -212,6 +293,11 @@ paths:
           description: user
           schema:
             $ref: '#/definitions/User'
+        404:
+          description: id not existant
+        500:
+          description: Server error
+        
     patch:
       tags:
         - users
@@ -225,12 +311,33 @@ paths:
           required: true
           name: user
           schema:
-            $ref: '#/definitions/User'
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+              balance:
+                description: in cents
+                type: integer
+              active:
+                type: boolean
+              audit:
+                type: boolean
+              redirect:
+                type: boolean
       responses:
         200:
           description: edited user
           schema:
             $ref: '#/definitions/User'
+        400:
+          description: Invalid input
+        404:
+          description: id not existant
+        500:
+          description: Server error
     delete:
       tags:
         - users
@@ -243,6 +350,10 @@ paths:
       responses:
         200:
           description: success
+        404:
+          description: id not existant
+        500:
+          description: Server error
   /users/{id}/deposit.json:
     post:
       tags:
@@ -255,11 +366,18 @@ paths:
           type: integer
         - in: body
           name: amount
+          required: true
           schema:
             type: integer
       responses:
         200:
           description: success
+        400:
+          description: Invalid input
+        404:
+          description: id not existant
+        500:
+          description: Server error
   /users/{id}/pay.json:
     post:
       tags:
@@ -272,11 +390,18 @@ paths:
           type: integer
         - in: body
           name: amount
+          required: true
           schema:
             type: integer
       responses:
         200:
           description: success
+        400:
+          description: Invalid input
+        404:
+          description: id not existant
+        500:
+          description: Server error
   /users/{id}/product.json:
     post:
       tags:
@@ -289,11 +414,18 @@ paths:
           type: integer
         - in: body
           name: product
+          required: true
           schema:
             type: integer
       responses:
         200:
           description: success
+        400:
+          description: Invalid input
+        404:
+          description: id not existant
+        500:
+          description: Server error
   /users/{id}/buy_barcode.json:
     post:
       tags:
@@ -312,6 +444,12 @@ paths:
       responses:
         200:
           description: success
+        400:
+          description: Invalid input
+        404:
+          description: id not existant
+        500:
+          description: Server error
   /users/stats.json:
     get:
       tags:
@@ -322,17 +460,27 @@ paths:
           description: stats
           schema:
             type: object
+            required:
+              - user_count
+              - balance_sum
             properties:
               user_count:
                 type: integer
               balance_sum:
                 description: as cents
                 type: integer
+        500:
+          description: Server error
 definitions:
   Product:
     type: object
     required:
       - name
+      - id
+      - price
+      - created_at
+      - updated_at
+      - active
     properties:
       id:
         type: integer
@@ -344,32 +492,26 @@ definitions:
       price:
         type: integer
         default: 150
-      logo_file_name:
-        type: string
-        format: uri
       created_at:
         type: string
         format: date-time
       updated_at:
         type: string
         format: date-time
-      logo_content_type:
-        type: string
-        description: mimetype of logo
-      logo_file_size:
-        type: integer
-        description: size of logo in bytes
-      logo_updated_at:
-        type: string
-        format: date-time
       active:
         type: boolean
         default: true
-      logo_url:
-        type: string
-        format: uri
   User:
     type: object
+    required:
+      - name
+      - id
+      - created_at
+      - updated_at
+      - balance
+      - active
+      - audit
+      - redirect
     properties:
       id:
         type: integer
