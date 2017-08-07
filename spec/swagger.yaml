@@ -1,12 +1,12 @@
 swagger: '2.0'
 info:
   description: API for transactions
-  version: 2.1.0
+  version: 3.0.0
   title: Space-Market
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-basePath: '/v2'
+basePath: '/v3'
 consumes:
   - application/json
 produces:
@@ -15,57 +15,40 @@ tags:
   - name: products
   - name: users
   - name: audits
+  - name: server
+  - name: image
+
 paths:
-  /info.json:
+  /info:
     get:
-      description: global server Information
+      tags:
+        - server
+      description: global server information and capabilities
       responses:
         200:
-          description: information
+          description: global server information
           schema:
-            type: object
-            required:
-              - version
-            properties:
-              version:
-                type: string
-                example: "2.1"
-  /audits.json:
+            type: array
+            items:
+              $ref: "#/definitions/Server"
+  /audits:
     get:
       tags:
         - audits
       summary: statistics about previous transactions
-      description: |
-        statistics about previous transactions
+      description: statistics about previous transactions
       parameters:
       - in: query
-        name: start_date[year]
+        name: start
+        required: true
+        type: string
+        description: start date in ISO8601 format
+      - in: query
+        name: end
+        type: string
         required: false
-        type: integer
-      - in: query
-        name: start_date[month]
-        type: integer
-        minimum: 1
-        maximum: 12
-      - in: query
-        name: start_date[day]
-        type: integer
-        minimum: 1
-        maximum: 31
-      - in: query
-        name: end_date[year]
-        required: false
-        type: integer
-      - in: query
-        name: end_date[month]
-        type: integer
-        minimum: 1
-        maximum: 12
-      - in: query
-        name: end_date[day]
-        type: integer
-        minimum: 1
-        maximum: 31
+        description: end date in ISO8601 format
+        default: now()
       - in: query
         name: user
         required: false
@@ -106,7 +89,7 @@ paths:
                       type: integer
         500:
           description: Server error
-  /products.json:
+  /products:
     get:
       tags:
         - products
@@ -119,7 +102,7 @@ paths:
             items:
               $ref: "#/definitions/Product"
         500:
-          description: Server error
+          description: server error
     post:
       tags:
         - products
@@ -138,23 +121,34 @@ paths:
               caffeine:
                 type: integer
                 description: mg of caffeine per 100 ml/mg/unit
+              alcohol:
+                type: integer
+                description: vol % alcohol without decimal seperator
+                example: 450
               price:
                 type: integer
                 default: 150
+              barcode:
+                type: string
+              image_uuid:
+                type: string
+                example: "7f4723df-2fde-4ccf-af2a-574ac6c837f2"
               active:
                 type: boolean
                 default: true
       responses:
-        200:
-          description: newly created Product
+        201:
+          description: created Product
           schema:
             $ref: "#/definitions/Product"
         400:
-          description: Invalid input
+          description: invalid input
+        409:
+          description: a product with the same name already exsists
         500:
-          description: Server error
+          description: server error
 
-  /products/{id}.json:
+  /products/{id}:
     get:
       tags:
         - products
@@ -172,7 +166,7 @@ paths:
         404:
           description: id not existant
         500:
-          description: Server error
+          description: server error
     patch:
       tags:
         - products
@@ -184,7 +178,6 @@ paths:
           type: integer
         - in: body
           name: product
-          required: true
           schema:
             type: object
             properties:
@@ -192,22 +185,28 @@ paths:
                 type: string
               caffeine:
                 type: integer
-                description: mg of caffeine per 100 ml/mg/unit
+              alcohol:
+                type: integer
               price:
                 type: integer
               active:
                 type: boolean
+              barcode:
+                type: string
+              image_uuid:
+                type: string
+                
       responses:
         200:
-          description: edited Product
+          description: edited product
           schema:
             $ref: "#/definitions/Product"
         400:
-          description: Invalid input
+          description: invalid input
         404:
           description: id not existant
         500:
-          description: Server error
+          description: server error
     delete:
       tags:
         - products
@@ -219,12 +218,12 @@ paths:
           type: integer
       responses:
         200:
-          description: successfully deleted
+          description: product deleted
         404:
           description: id not existant
         500:
-          description: Server error
-  /users.json:
+          description: server error
+  /users:
     get:
       tags:
         - users
@@ -268,17 +267,20 @@ paths:
                 default: false
               redirect:
                 type: boolean
-                default: false
+                default: true
+              image_uuid:
+                type: string
+                default: none
       responses:
         200:
           description: new user
           schema:
             $ref: '#/definitions/User'
         400:
-          description: Invalid input
+          description: invalid input
         500:
-          description: Server error
-  /users/{id}.json:
+          description: server error
+  /users/{id}:
     get:
       tags:
         - users
@@ -327,6 +329,8 @@ paths:
                 type: boolean
               redirect:
                 type: boolean
+              image_uuid:
+                type: string
       responses:
         200:
           description: edited user
@@ -354,7 +358,7 @@ paths:
           description: id not existant
         500:
           description: Server error
-  /users/{id}/deposit.json:
+  /users/{id}/deposit:
     post:
       tags:
         - users
@@ -378,7 +382,7 @@ paths:
           description: id not existant
         500:
           description: Server error
-  /users/{id}/pay.json:
+  /users/{id}/spend:
     post:
       tags:
         - users
@@ -397,12 +401,12 @@ paths:
         200:
           description: success
         400:
-          description: Invalid input
+          description: invalid input
         404:
           description: id not existant
         500:
-          description: Server error
-  /users/{id}/product.json:
+          description: server error
+  /users/{id}/buy:
     post:
       tags:
         - users
@@ -426,7 +430,7 @@ paths:
           description: id not existant
         500:
           description: Server error
-  /users/{id}/buy_barcode.json:
+  /users/{id}/buy/barcode:
     post:
       tags:
         - users
@@ -450,7 +454,7 @@ paths:
           description: id not existant
         500:
           description: Server error
-  /users/stats.json:
+  /users/stats:
     get:
       tags:
         - users
@@ -462,16 +466,136 @@ paths:
             type: object
             required:
               - user_count
+              - active_count
               - balance_sum
             properties:
               user_count:
+                type: integer
+              active_count:
                 type: integer
               balance_sum:
                 description: as cents
                 type: integer
         500:
           description: Server error
+  /images/:
+    get:
+      tags:
+        - image
+      description: Information about image handling
+      responses:
+        200:
+          description: The serve is capable of handling images
+        501:
+          description: not implemented
+    post:
+      tags:
+        - image
+      description: upload image
+      summary: image data
+      consumes:
+        - image/png
+        - imaage/jpeg
+        - img/gif
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Image"
+        413:
+          description: uploaded file to large
+        415:
+          description: unsupported media type
+        500:
+          description: server error
+  /images/{id}:
+    get:
+      tags: 
+        - image
+      description: image metadata
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        200:
+          description: image metadata
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Image"
+  /images/{id}/img:
+    get:
+      tags:
+       - image
+      description: image data
+      summary: image data
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          required: true
+          description: Numeric ID of the user to get.
+      produces: 
+        - image/png
+        - image/jpeg
+        - image/gif
+      responses:
+        200:
+          description: image data blob
+        404:
+          description: id not existant
+        500:
+          description: server error i.e.
 definitions:
+  Server:
+    type: object
+    required:
+      - version
+      - currency
+      - currency_before
+      - decimal_seperator
+    properties:
+      version:
+        type: string
+        default: "3.0.0 alpha"
+      global_credit_limit:
+        type: integer
+        example: 2000
+        description: globale credit limit in cent; to disable set to false 
+      currency:
+        type: string
+        default: "€"
+        example: "€"
+      currency_before:
+        type: boolean
+        description: If true the currency symbol is show before the sum
+        default: false
+        example: false
+      decimal_seperator:
+        description: if None, the currency uses no 1/100th and therefore no decimal seperator is used. E.g. in Sweden
+        type: string
+        default: ","
+        example: ","
+  Image:
+    type: object
+    required:
+      - file_name
+      - created_at
+      - updated_at
+    properties:
+      file_name:
+        type: string
+        example: "example.png"
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
   Product:
     type: object
     required:
@@ -489,9 +613,16 @@ definitions:
       caffeine:
         type: integer
         description: mg of caffeine per 100 ml/mg/unit
+      alcohol:
+        type: integer
+        description: "volume percent (without decimal seperator)"
+        example: 450 # means 4,5 vol. %
       price:
         type: integer
         default: 150
+      barcode:
+        type: string
+        description: e.g. ean barcode of product
       created_at:
         type: string
         format: date-time
@@ -501,6 +632,9 @@ definitions:
       active:
         type: boolean
         default: true
+      image_uuid:
+        type: string
+        example: "7f4723df-2fde-4ccf-af2a-574ac6c837f2"
   User:
     type: object
     required:
@@ -529,6 +663,8 @@ definitions:
       balance:
         description: in cents
         type: integer
+      barcode:
+        type: string
       active:
         type: boolean
         default: true
@@ -537,3 +673,4 @@ definitions:
         default: false
       redirect:
         type: boolean
+        default: true
