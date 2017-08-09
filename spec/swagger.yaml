@@ -130,9 +130,9 @@ paths:
                 default: 150
               barcode:
                 type: string
-              image_uuid:
-                type: string
-                example: "7f4723df-2fde-4ccf-af2a-574ac6c837f2"
+              image:
+                type: integer
+                example: 23
               active:
                 type: boolean
                 default: true
@@ -193,8 +193,8 @@ paths:
                 type: boolean
               barcode:
                 type: string
-              image_uuid:
-                type: string
+              image:
+                type: integer
 
       responses:
         200:
@@ -268,9 +268,8 @@ paths:
               redirect:
                 type: boolean
                 default: true
-              image_uuid:
-                type: string
-                default: none
+              avatar:
+                type: integer
       responses:
         200:
           description: new user
@@ -329,8 +328,8 @@ paths:
                 type: boolean
               redirect:
                 type: boolean
-              image_uuid:
-                type: string
+              avatar:
+                type: integer
       responses:
         200:
           description: edited user
@@ -636,9 +635,8 @@ definitions:
       active:
         type: boolean
         default: true
-      image_uuid:
-        type: string
-        example: "7f4723df-2fde-4ccf-af2a-574ac6c837f2"
+      image:
+        type: integer
   User:
     type: object
     required:
@@ -678,3 +676,5 @@ definitions:
       redirect:
         type: boolean
         default: true
+      avatar:
+        type: integer
