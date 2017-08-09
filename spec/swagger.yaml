@@ -195,7 +195,7 @@ paths:
                 type: string
               image_uuid:
                 type: string
-                
+
       responses:
         200:
           description: edited product
@@ -299,7 +299,7 @@ paths:
           description: id not existant
         500:
           description: Server error
-        
+
     patch:
       tags:
         - users
@@ -512,7 +512,7 @@ paths:
           description: server error
   /images/{id}:
     get:
-      tags: 
+      tags:
         - image
       description: image metadata
       parameters:
@@ -539,7 +539,7 @@ paths:
           type: integer
           required: true
           description: Numeric ID of the user to get.
-      produces: 
+      produces:
         - image/png
         - image/jpeg
         - image/gif
@@ -561,11 +561,11 @@ definitions:
     properties:
       version:
         type: string
-        default: "3.0.0 alpha"
+        default: "3.0.0"
       global_credit_limit:
         type: integer
         example: 2000
-        description: globale credit limit in cent; to disable set to false 
+        description: globale credit limit in cent; to disable set to false
       currency:
         type: string
         default: "€"
