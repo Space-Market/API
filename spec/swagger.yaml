@@ -494,9 +494,13 @@ paths:
       description: upload image
       summary: image data
       consumes:
-        - image/png
-        - imaage/jpeg
-        - img/gif
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: image
+          type: file
+          description: file to upload (jpg, png or gif)
+          required: true
       responses:
         200:
           description: OK
