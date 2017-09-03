@@ -271,7 +271,7 @@ paths:
       responses:
         200:
           description: success
-  /users/{id}/drink.json:
+  /users/{id}/buy.json:
     get:
       tags:
         - users
