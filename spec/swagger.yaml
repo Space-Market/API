@@ -254,7 +254,7 @@ paths:
       responses:
         200:
           description: success
-  /users/{id}/pay.json:
+  /users/{id}/payment.json:
     get:
       tags:
         - users
