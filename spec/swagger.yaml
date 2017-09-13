@@ -219,10 +219,8 @@ paths:
           schema:
             $ref: '#/definitions/User'
       responses:
-        200:
-          description: edited user
-          schema:
-            $ref: '#/definitions/User'
+        204:
+          description: successfully edited
     delete:
       tags:
         - users
