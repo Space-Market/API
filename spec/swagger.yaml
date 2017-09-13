@@ -148,10 +148,8 @@ paths:
           schema:
             $ref: "#/definitions/Drink"
       responses:
-        200:
-          description: edited Drink
-          schema:
-            $ref: "#/definitions/Drink"
+        204:
+          description: successfully edited
     delete:
       tags:
         - drinks
