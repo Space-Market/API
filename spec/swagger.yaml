@@ -160,7 +160,7 @@ paths:
           name: id
           type: integer
       responses:
-        200:
+        204:
           description: successfully deleted
   /barcodes.json:
     get:
@@ -271,8 +271,8 @@ paths:
           name: id
           type: integer
       responses:
-        200:
-          description: success
+        204:
+          description: successfully deleted
   /users/{id}/deposit.json:
     get:
       tags:
