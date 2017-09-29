@@ -162,6 +162,46 @@ paths:
       responses:
         200:
           description: successfully deleted
+  /barcodes.json:
+    get:
+      tags:
+        - barcodes
+      summary: returns all barcodes
+      responses:
+        200:
+          description: list of barcodes
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Barcode'
+    post:
+      tags:
+        - barcodes
+      summary: creates new Barcode
+      parameters:
+        - in: body
+          required: true
+          name: barcode
+          schema:
+            $ref: '#/definitions/Barcode'
+      responses:
+        200:
+          description: newly created Barcode
+          schema:
+            $ref: '#/definitions/Barcode'
+  /barcodes/{id}.json:
+    delete:
+      tags:
+        - barcodes
+      summary: deletes barcode
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: string
+      responses:
+        204:
+          description: barcode successfully deleted
   /users.json:
     get:
       tags:
@@ -397,3 +437,12 @@ definitions:
         default: false
       redirect:
         type: boolean
+  Barcode:
+    type: object
+    properties:
+      id:
+        type: string
+        description: the barcode
+      drink:
+        type: integer
+        description: the ID of the drink
