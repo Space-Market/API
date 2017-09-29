@@ -337,18 +337,21 @@ definitions:
         default: "1.5"
         pattern: '\d+(\.\d*)?'
         format: float
-      logo_file_name:
-        type: string
-        format: uri
       created_at:
         type: string
         format: date-time
       updated_at:
         type: string
         format: date-time
+      logo:
+        type: binary
+        description: the image to upload as the logo
       logo_content_type:
         type: string
         description: mimetype of logo
+      logo_file_name:
+        type: string
+        format: uri
       logo_file_size:
         type: integer
         description: size of logo in bytes
