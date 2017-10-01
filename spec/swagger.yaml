@@ -317,7 +317,7 @@ paths:
           name: amount
           type: number
       responses:
-        200:
+        204:
           description: success
   /users/{id}/payment.json:
     get:
@@ -334,7 +334,7 @@ paths:
           name: amount
           type: number
       responses:
-        200:
+        204:
           description: success
   /users/{id}/buy.json:
     get:
@@ -351,7 +351,7 @@ paths:
           name: drink
           type: integer
       responses:
-        200:
+        204:
           description: success
   /users/{id}/buy_barcode.json:
     post:
@@ -369,7 +369,7 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        204:
           description: success
   /users/stats.json:
     get:
