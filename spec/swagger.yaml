@@ -117,7 +117,16 @@ paths:
           description: newly created Drink
           schema:
             $ref: "#/definitions/Drink"
-
+  /drinks/new.json:
+    get:
+      tags:
+        - drinks
+      summary: returns the defaults for creating a new drink
+      responses:
+        200:
+          description: defaults
+          schema:
+            $ref: "#/definitions/Drink"
   /drinks/{id}.json:
     get:
       tags:
@@ -189,6 +198,16 @@ paths:
           description: newly created Barcode
           schema:
             $ref: '#/definitions/Barcode'
+  /barcodes/new.json:
+    get:
+      tags:
+        - barcodes
+      summary: returns the defaults for creating new barcodes
+      responses:
+        200:
+          description: defaults
+          schema:
+            $ref: '#/definitions/Barcode'
   /barcodes/{id}.json:
     delete:
       tags:
@@ -227,6 +246,16 @@ paths:
       responses:
         200:
           description: new user
+          schema:
+            $ref: '#/definitions/User'
+  /users/new.json:
+    get:
+      tags:
+        - users
+      summary: returns the defaults for creating a new user
+      responses:
+        200:
+          description: defaults
           schema:
             $ref: '#/definitions/User'
   /users/{id}.json:
