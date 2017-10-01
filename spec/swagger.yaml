@@ -369,6 +369,12 @@ definitions:
         type: integer
       name:
         type: string
+      bottle_size:
+        type: string
+        default: "0.0"
+        pattern: '\d+(\.\d*)?'
+        format: float
+        description: in litres
       caffeine:
         type: integer
         description: mg of caffeine per 100 ml
