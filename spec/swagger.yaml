@@ -419,7 +419,8 @@ definitions:
         type: string
         format: date-time
       logo:
-        type: binary
+        type: string
+        format: binary
         description: the image to upload as the logo
       logo_content_type:
         type: string
