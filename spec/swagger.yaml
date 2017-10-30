@@ -130,9 +130,9 @@ paths:
                 type: integer
                 description: vol % alcohol without decimal seperator and one decimal place
                 example: 45
-              calories:
+              energy:
                 type: integer
-                description: kcal per 100g / 100ml
+                description: energy per 100g / 100ml
                 example: 42
               sugar:
                 type: integer
@@ -827,6 +827,7 @@ definitions:
       - currency
       - currency_before
       - decimal_seperator
+      - energy
     properties:
       version:
         type: string
@@ -849,6 +850,11 @@ definitions:
         type: string
         default: ","
         example: ","
+      energy:
+        type: string
+        description: unit of energy e.g. kcal or kj
+        default: "kcal"
+        example: "kcal"
   Image:
     type: object
     required:
@@ -886,9 +892,9 @@ definitions:
         type: integer
         description: "volume percent (with one decimal place)"
         example: 450 # means 4,5 vol. %
-      calories:
+      energy:
         type: integer
-        description: "kcal per 100ml / 100g with no decimal place"
+        description: "energy per 100ml / 100g with no decimal place"
         example: 42
       sugar:
         type: integer
