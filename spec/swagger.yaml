@@ -17,9 +17,11 @@ tags:
   - name: audits
   - name: server
   - name: image
+  - name: barcodes
+  - name: denominations
 
 paths:
-  /info:
+  /info/:
     get:
       tags:
         - server
@@ -31,7 +33,7 @@ paths:
             type: array
             items:
               $ref: "#/definitions/Server"
-  /audits:
+  /audits/:
     get:
       tags:
         - audits
@@ -42,13 +44,14 @@ paths:
         name: start
         required: true
         type: string
+        format: date
         description: start date in ISO8601 format
       - in: query
         name: end
         type: string
+        format: date
         required: false
         description: end date in ISO8601 format
-        default: now()
       - in: query
         name: user
         required: false
@@ -87,9 +90,11 @@ paths:
                       type: integer
                     product:
                       type: integer
+        401:
+          description: Audits deactived by user
         500:
           description: Server error
-  /products:
+  /products/:
     get:
       tags:
         - products
@@ -123,13 +128,19 @@ paths:
                 description: mg of caffeine per 100 ml/mg/unit
               alcohol:
                 type: integer
-                description: vol % alcohol without decimal seperator
-                example: 450
+                description: vol % alcohol without decimal seperator and one decimal place
+                example: 45
+              calories:
+                type: integer
+                description: kcal per 100g / 100ml
+                example: 42
+              sugar:
+                type: integer
+                description: g sugar per 100g / 100ml with one deciaml place
+                example: 108
               price:
                 type: integer
                 default: 150
-              barcode:
-                type: string
               image:
                 type: integer
                 example: 23
@@ -148,7 +159,7 @@ paths:
         500:
           description: server error
 
-  /products/{id}:
+  /products/{id}/:
     get:
       tags:
         - products
@@ -164,7 +175,7 @@ paths:
           schema:
             $ref: "#/definitions/Product"
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: server error
     patch:
@@ -191,8 +202,6 @@ paths:
                 type: integer
               active:
                 type: boolean
-              barcode:
-                type: string
               image:
                 type: integer
 
@@ -204,7 +213,7 @@ paths:
         400:
           description: invalid input
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: server error
     delete:
@@ -220,10 +229,10 @@ paths:
         200:
           description: product deleted
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: server error
-  /users:
+  /users/:
     get:
       tags:
         - users
@@ -279,7 +288,7 @@ paths:
           description: invalid input
         500:
           description: server error
-  /users/{id}:
+  /users/{id}/:
     get:
       tags:
         - users
@@ -295,7 +304,7 @@ paths:
           schema:
             $ref: '#/definitions/User'
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: Server error
 
@@ -338,7 +347,7 @@ paths:
         400:
           description: Invalid input
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: Server error
     delete:
@@ -354,10 +363,10 @@ paths:
         200:
           description: success
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: Server error
-  /users/{id}/deposit:
+  /users/{id}/deposit/:
     post:
       tags:
         - users
@@ -378,10 +387,10 @@ paths:
         400:
           description: Invalid input
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: Server error
-  /users/{id}/spend:
+  /users/{id}/spend/:
     post:
       tags:
         - users
@@ -402,10 +411,10 @@ paths:
         400:
           description: invalid input
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: server error
-  /users/{id}/buy:
+  /users/{id}/buy/:
     post:
       tags:
         - users
@@ -426,10 +435,10 @@ paths:
         400:
           description: Invalid input
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: Server error
-  /users/{id}/buy/barcode:
+  /users/{id}/buy/barcode/:
     post:
       tags:
         - users
@@ -450,10 +459,43 @@ paths:
         400:
           description: Invalid input
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: Server error
-  /users/stats:
+  /users/{id}/transfer/:
+    post:
+      tags:
+       - users
+      summary: transfer funds between users
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+          description: id of the funds sending user
+        - in: body
+          required: true
+          name: transaction
+          schema:
+            type: object
+            properties:
+              amount:
+                type: integer
+              receiver:
+                type: integer
+      responses:
+        204:
+          description: transaction successful
+        400:
+          description: bad request
+        402:
+          description: sending user has insufficient funds on his account
+        404:
+          description: sending user id not existent
+        500:
+          description: server error
+        
+  /users/stats/:
     get:
       tags:
         - users
@@ -541,7 +583,7 @@ paths:
           name: id
           type: integer
           required: true
-          description: Numeric ID of the user to get.
+          description: Numeric ID of the image to get.
       produces:
         - image/png
         - image/jpeg
@@ -550,9 +592,233 @@ paths:
         200:
           description: image data blob
         404:
-          description: id not existant
+          description: id not existent
         500:
           description: server error i.e.
+  /barcodes/:
+    post:
+      tags:
+      - barcodes
+      summary: create a new barcode
+      parameters:
+        - in: body
+          required: true
+          name: barcode
+          schema:
+            type: object
+            properties:
+              barcode:
+                type: string
+              type:
+                type: string
+                description: product or user
+              linked:
+                description: id of linked object (product or user)
+                type: integer
+      responses:
+        200:
+          description: created barcode
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Barcode"
+        400: 
+          description: bad request
+        409:
+          description: a barcode with this name already exsists
+        500:
+          description: server error
+  /barcodes/{id}/:
+    get:
+      tags: 
+      - barcodes
+      summary: get details for a given barcode
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: details of barcode
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Barcode"
+        404:
+          description: barcode not existent
+        500:
+          description: server error
+    delete:
+      tags: 
+      - barcodes
+      summary: delete the barcode
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+      responses:
+        204:
+          description: barcode deleted
+        404:
+          description: barcode not existent
+        500:
+          description: server error
+    patch:
+      tags:
+      - barcodes
+      summary: update an exsisting barcode
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+        - in: body
+          name: barcode
+          required: false
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+              linked:
+                type: integer
+      responses:
+        200:
+          description: barcode updated
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Barcode"
+        400:
+          description: bad request
+        404:
+          description: barcode not existent
+        500:
+          description:  server error
+  /denominations/:
+    post:
+      tags:
+      - denominations
+      summary: create a new denomination
+      parameters:
+        - in: body
+          required: true
+          name: denominations
+          schema:
+            type: object
+            properties:
+              amount:
+                type: integer
+              image:
+                description: id of linked image
+                type: integer
+      responses:
+        200:
+          description: created denomination
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Denomination"
+        400: 
+          description: bad request
+        409:
+          description: a denominations with this amount already exsists
+        500:
+          description: server error
+    get:
+      tags:
+      - denominations
+      summary: get a list of all configured denominations
+      responses:
+        200:
+          description: list of denominations
+          schema:
+            type: array
+            items: 
+              $ref: "#/definitions/Denomination"
+        400:
+          description: bad request
+        409:
+          description: a denomination with this value already exists
+        500:
+          description: server error
+  /denominations/{id}/:
+    get:
+      tags:
+      - denominations
+      summary: get details of given denomination
+      description: foobar
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        200:
+          description: details of denomination
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Denomination"
+        400: 
+          description: bad request
+        404:
+          description: id not existent
+        500:
+          description: server error
+    patch:
+      tags:
+      - denominations
+      summary: update a denomination
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          name: denominations
+          required: false
+          schema:
+            type: object
+            properties:
+              amount:
+                type: integer
+              image:
+                type: integer
+      responses:
+        200:
+          description: details of updated denomination
+          schema:
+            type: array
+            items: 
+              $ref: "#/definitions/Denomination"
+        400:
+          description: bad request
+        404:
+          description: id not existent
+        409:
+          description: a denomination with this value already exists
+        500:
+          description: server error       
+    delete:
+      tags:
+      - denominations
+      summary: delete a denomination
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        204: 
+          description: denomination deleted
+        404:
+          description: id not existent
+        500: 
+          description: server error
+          
 definitions:
   Server:
     type: object
@@ -568,7 +834,7 @@ definitions:
       global_credit_limit:
         type: integer
         example: 2000
-        description: globale credit limit in cent; to disable set to false
+        description: global credit limit in cent (subdevision of currency); to disable set to false
       currency:
         type: string
         default: "€"
@@ -579,7 +845,7 @@ definitions:
         default: false
         example: false
       decimal_seperator:
-        description: if None, the currency uses no 1/100th and therefore no decimal seperator is used. E.g. in Sweden
+        description: if None, the currency uses no subdevision and therefore no decimal seperator is used. E.g. in Sweden
         type: string
         default: ","
         example: ","
@@ -618,14 +884,19 @@ definitions:
         description: mg of caffeine per 100 ml/mg/unit
       alcohol:
         type: integer
-        description: "volume percent (without decimal seperator)"
+        description: "volume percent (with one decimal place)"
         example: 450 # means 4,5 vol. %
+      calories:
+        type: integer
+        description: "kcal per 100ml / 100g with no decimal place"
+        example: 42
+      sugar:
+        type: integer
+        description: "g sugar per 100g / 100ml with one decimal place"
+        example: 108 # 10,8g / 100[ml|g]
       price:
         type: integer
         default: 150
-      barcode:
-        type: string
-        description: e.g. ean barcode of product
       created_at:
         type: string
         format: date-time
@@ -678,3 +949,49 @@ definitions:
         default: true
       avatar:
         type: integer
+  Barcode:
+    type: object
+    required:
+      - id
+      - barcode
+      - type
+      - linked
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: integer
+      barcode:
+        type: string
+      type:
+        type: string
+        default: "product"
+      linked:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  Denomination:
+    type: object
+    required:
+      - amount
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: integer
+      amount:
+        description: amount in cents / subdevision of currency
+        type: integer
+      image:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      
