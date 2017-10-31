@@ -525,7 +525,7 @@ paths:
         - image
       description: Information about image handling
       responses:
-        200:
+        204:
           description: The serve is capable of handling images
         501:
           description: not implemented
@@ -1000,4 +1000,3 @@ definitions:
       updated_at:
         type: string
         format: date-time
-      
