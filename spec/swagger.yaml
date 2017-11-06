@@ -382,7 +382,7 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        204:
           description: success
         400:
           description: Invalid input
@@ -406,7 +406,7 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        204:
           description: success
         400:
           description: invalid input
@@ -430,7 +430,7 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        204:
           description: success
         400:
           description: Invalid input
@@ -454,7 +454,7 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        204:
           description: success
         400:
           description: Invalid input
@@ -494,6 +494,27 @@ paths:
           description: sending user id not existent
         500:
           description: server error
+          
+  /users/barcode/{barcode}/:
+    get:
+      tags:
+       - users
+      summary: get users details by associated barcode
+      parameters:
+        - in: path
+          required: true
+          type: integer
+          name: barcode
+          description: barcode associated with user
+      responses:
+        200:
+          description: user's details
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: no user associated to the given barcode
+        404:
+          description: barcode not found
         
   /users/stats/:
     get:
