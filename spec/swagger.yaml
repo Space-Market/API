@@ -876,6 +876,38 @@ definitions:
         description: unit of energy e.g. kcal or kj
         default: "kcal"
         example: "kcal"
+      defaults:
+        type: object
+        description: defaults for new products
+        properties:
+          price:
+            type: integer
+            description: default price in cent
+            example: 150
+          package_size:
+            type: string
+            description: default package size
+            example: 0,33 ml pro Flasche
+          caffeine:
+            type: integer
+            description: default caffeine contents in mg per 100ml/g
+            example: 20
+          alcohol:
+            type: integer
+            description: default volume percent of alcohol (with two decimal places)
+            example: 450 # means 4.5 % abv
+          energy:
+            type: integer
+            description: default energy per 100g / 100ml without decimal places
+            example: 42
+          sugar:
+            type: integer
+            description: default sugar amount per 100g / 100ml with one decimal place
+            example: 123 # means 12.3 kcal/kj per 100g / 100ml
+          active:
+            type: boolean
+            description: default weather a product is active upon creation or not
+            example: true
   Image:
     type: object
     required:
@@ -911,7 +943,7 @@ definitions:
         description: mg of caffeine per 100 ml/mg/unit
       alcohol:
         type: integer
-        description: "volume percent (with one decimal place)"
+        description: "volume percent (with two decimal places)"
         example: 450 # means 4,5 vol. %
       energy:
         type: integer
