@@ -155,7 +155,7 @@ paths:
         400:
           description: invalid input
         409:
-          description: a product with the same name already exsists
+          description: a product with the same name already exists
         500:
           description: server error
 
@@ -646,7 +646,7 @@ paths:
         400: 
           description: bad request
         409:
-          description: a barcode with this name already exsists
+          description: a barcode with this name already exists
         500:
           description: server error
   /barcodes/{id}/:
@@ -689,7 +689,7 @@ paths:
     patch:
       tags:
       - barcodes
-      summary: update an exsisting barcode
+      summary: update an existing barcode
       parameters:
         - in: path
           name: id
@@ -745,7 +745,7 @@ paths:
         400: 
           description: bad request
         409:
-          description: a denominations with this amount already exsists
+          description: a denominations with this amount already exists
         500:
           description: server error
     get:
