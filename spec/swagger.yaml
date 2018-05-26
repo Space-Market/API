@@ -91,7 +91,7 @@ paths:
                     product:
                       type: integer
         401:
-          description: Audits deactived by user
+          description: Audits deactivated by user
         500:
           description: Server error
   /products/:
