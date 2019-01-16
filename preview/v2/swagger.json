@@ -1,0 +1,606 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "API for transactions",
+    "version": "2.0.0",
+    "title": "Space-Market",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "basePath": "/v2",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "products"
+    },
+    {
+      "name": "users"
+    },
+    {
+      "name": "audits"
+    }
+  ],
+  "paths": {
+    "/info.json": {
+      "get": {
+        "description": "V2 support",
+        "responses": {
+          "200": {
+            "description": "indicates that v2 is supported. Future use may include capabilities."
+          }
+        }
+      }
+    },
+    "/audits.json": {
+      "get": {
+        "tags": [
+          "audits"
+        ],
+        "summary": "statistics about previous transactions",
+        "description": "statistics about previous transactions\n",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "start_date[year]",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "start_date[month]",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          {
+            "in": "query",
+            "name": "start_date[day]",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31
+          },
+          {
+            "in": "query",
+            "name": "end_date[year]",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "end_date[month]",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          {
+            "in": "query",
+            "name": "end_date[day]",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "audits",
+            "schema": {
+              "type": "object",
+              "required": [
+                "sum",
+                "payments_sum",
+                "deposits_sum",
+                "audits"
+              ],
+              "properties": {
+                "sum": {
+                  "description": "sum as cents",
+                  "type": "integer"
+                },
+                "payments_sum": {
+                  "description": "as cents",
+                  "type": "integer"
+                },
+                "deposits_sum": {
+                  "description": "as cents",
+                  "type": "integer"
+                },
+                "audits": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "difference": {
+                        "type": "integer"
+                      },
+                      "product": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products.json": {
+      "get": {
+        "tags": [
+          "products"
+        ],
+        "summary": "returns all products",
+        "responses": {
+          "200": {
+            "description": "products",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "products"
+        ],
+        "summary": "creates a new product",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "product",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "newly created Product",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}.json": {
+      "get": {
+        "tags": [
+          "products"
+        ],
+        "summary": "returns specific product",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "product",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "products"
+        ],
+        "summary": "edits specific product",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "product",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "edited Product",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "products"
+        ],
+        "summary": "deletes specific product",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully deleted"
+          }
+        }
+      }
+    },
+    "/users.json": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "returns all users",
+        "responses": {
+          "200": {
+            "description": "list of users",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "creates new User",
+        "parameters": [
+          {
+            "in": "body",
+            "required": true,
+            "name": "user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "new user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}.json": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "returns specific user",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "users"
+        ],
+        "summary": "edits specific user",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "required": true,
+            "name": "user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "edited user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "deletes user",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/users/{id}/deposit.json": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "adds amount (in cents) to the balance of the user with id",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "amount",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/users/{id}/pay.json": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "subtracts amount (in cents) from the balance of the user with id",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "amount",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/users/{id}/product.json": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "buys product with id product from user with id",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "product",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/users/{id}/buy_barcode.json": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "buys product with barcode for user with id",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "required": true,
+            "name": "barcode",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/users/stats.json": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "stats about users",
+        "responses": {
+          "200": {
+            "description": "stats",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_count": {
+                  "type": "integer"
+                },
+                "balance_sum": {
+                  "description": "as cents",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Product": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "caffeine": {
+          "type": "integer",
+          "description": "mg of caffeine per 100 ml/mg/unit"
+        },
+        "price": {
+          "type": "integer",
+          "default": 150
+        },
+        "logo_file_name": {
+          "type": "string",
+          "format": "uri"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "logo_content_type": {
+          "type": "string",
+          "description": "mimetype of logo"
+        },
+        "logo_file_size": {
+          "type": "integer",
+          "description": "size of logo in bytes"
+        },
+        "logo_updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        },
+        "logo_url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "balance": {
+          "description": "in cents",
+          "type": "integer"
+        },
+        "active": {
+          "type": "boolean",
+          "default": true
+        },
+        "audit": {
+          "type": "boolean",
+          "default": false
+        },
+        "redirect": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

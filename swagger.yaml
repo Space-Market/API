@@ -1,0 +1,1048 @@
+swagger: '2.0'
+info:
+  description: API for transactions
+  version: 3.0.0
+  title: Space-Market
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+basePath: /v3
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: products
+  - name: users
+  - name: audits
+  - name: server
+  - name: image
+  - name: barcodes
+  - name: denominations
+paths:
+  /info/:
+    get:
+      tags:
+        - server
+      description: global server information and capabilities
+      responses:
+        '200':
+          description: global server information
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Server'
+  /audits/:
+    get:
+      tags:
+        - audits
+      summary: statistics about previous transactions
+      description: statistics about previous transactions
+      parameters:
+        - in: query
+          name: start
+          required: true
+          type: string
+          format: date
+          description: start date in ISO8601 format
+        - in: query
+          name: end
+          type: string
+          format: date
+          required: false
+          description: end date in ISO8601 format
+        - in: query
+          name: user
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: audits
+          schema:
+            type: object
+            required:
+              - sum
+              - payments_sum
+              - deposits_sum
+              - audits
+            properties:
+              sum:
+                description: sum as cents
+                type: integer
+              payments_sum:
+                description: as cents
+                type: integer
+              deposits_sum:
+                description: as cents
+                type: integer
+              audits:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: date-time
+                    difference:
+                      type: integer
+                    product:
+                      type: integer
+        '401':
+          description: Audits deactivated by user
+        '500':
+          description: Server error
+  /products/:
+    get:
+      tags:
+        - products
+      summary: returns all products
+      responses:
+        '200':
+          description: products
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
+        '500':
+          description: server error
+    post:
+      tags:
+        - products
+      summary: creates a new product
+      parameters:
+        - in: body
+          name: product
+          required: true
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              caffeine:
+                type: integer
+                description: mg of caffeine per 100 ml/mg/unit
+              alcohol:
+                type: integer
+                description: vol % alcohol without decimal seperator and one decimal place
+                example: 45
+              energy:
+                type: integer
+                description: energy per 100g / 100ml
+                example: 42
+              sugar:
+                type: integer
+                description: g sugar per 100g / 100ml with one deciaml place
+                example: 108
+              price:
+                type: integer
+                default: 150
+              image:
+                type: integer
+                example: 23
+              active:
+                type: boolean
+                default: true
+      responses:
+        '201':
+          description: created Product
+          schema:
+            $ref: '#/definitions/Product'
+        '400':
+          description: invalid input
+        '409':
+          description: a product with the same name already exists
+        '500':
+          description: server error
+  '/products/{id}/':
+    get:
+      tags:
+        - products
+      summary: returns specific product
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        '200':
+          description: product
+          schema:
+            $ref: '#/definitions/Product'
+        '404':
+          description: id not existent
+        '500':
+          description: server error
+    patch:
+      tags:
+        - products
+      summary: edits specific product
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          name: product
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              caffeine:
+                type: integer
+              alcohol:
+                type: integer
+              price:
+                type: integer
+              active:
+                type: boolean
+              image:
+                type: integer
+      responses:
+        '200':
+          description: edited product
+          schema:
+            $ref: '#/definitions/Product'
+        '400':
+          description: invalid input
+        '404':
+          description: id not existent
+        '500':
+          description: server error
+    delete:
+      tags:
+        - products
+      summary: deletes specific product
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        '200':
+          description: product deleted
+        '404':
+          description: id not existent
+        '500':
+          description: server error
+  /users/:
+    get:
+      tags:
+        - users
+      summary: returns all users
+      responses:
+        '200':
+          description: list of users
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        '500':
+          description: Server error
+    post:
+      tags:
+        - users
+      summary: creates new User
+      parameters:
+        - in: body
+          required: true
+          name: user
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+              balance:
+                description: in cents
+                type: integer
+                default: 0
+              active:
+                type: boolean
+                default: true
+              audit:
+                type: boolean
+                default: false
+              redirect:
+                type: boolean
+                default: true
+              avatar:
+                type: integer
+      responses:
+        '200':
+          description: new user
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: invalid input
+        '500':
+          description: server error
+  '/users/{id}/':
+    get:
+      tags:
+        - users
+      summary: returns specific user
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        '200':
+          description: user
+          schema:
+            $ref: '#/definitions/User'
+        '404':
+          description: id not existent
+        '500':
+          description: Server error
+    patch:
+      tags:
+        - users
+      summary: edits specific user
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          required: true
+          name: user
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+              balance:
+                description: in cents
+                type: integer
+              active:
+                type: boolean
+              audit:
+                type: boolean
+              redirect:
+                type: boolean
+              avatar:
+                type: integer
+      responses:
+        '200':
+          description: edited user
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Invalid input
+        '404':
+          description: id not existent
+        '500':
+          description: Server error
+    delete:
+      tags:
+        - users
+      summary: deletes user
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        '200':
+          description: success
+        '404':
+          description: id not existent
+        '500':
+          description: Server error
+  '/users/{id}/deposit/':
+    post:
+      tags:
+        - users
+      summary: adds amount (in cents) to the balance of the user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          name: amount
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: success
+        '400':
+          description: Invalid input
+        '404':
+          description: id not existent
+        '500':
+          description: Server error
+  '/users/{id}/spend/':
+    post:
+      tags:
+        - users
+      summary: subtracts amount (in cents) from the balance of the user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          name: amount
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: success
+        '400':
+          description: invalid input
+        '404':
+          description: id not existent
+        '500':
+          description: server error
+  '/users/{id}/buy/':
+    post:
+      tags:
+        - users
+      summary: buys product with id product from user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          name: product
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: success
+        '400':
+          description: Invalid input
+        '404':
+          description: id not existent
+        '500':
+          description: Server error
+  '/users/{id}/buy/barcode/':
+    post:
+      tags:
+        - users
+      summary: buys product with barcode for user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          required: true
+          name: barcode
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: success
+        '400':
+          description: Invalid input
+        '404':
+          description: id not existent
+        '500':
+          description: Server error
+  '/users/{id}/transfer/':
+    post:
+      tags:
+        - users
+      summary: transfer funds between users
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+          description: id of the funds sending user
+        - in: body
+          required: true
+          name: transaction
+          schema:
+            type: object
+            properties:
+              amount:
+                type: integer
+              receiver:
+                type: integer
+      responses:
+        '204':
+          description: transaction successful
+        '400':
+          description: bad request
+        '402':
+          description: sending user has insufficient funds on his account
+        '404':
+          description: sending user id not existent
+        '500':
+          description: server error
+  '/users/barcode/{barcode}/':
+    get:
+      tags:
+        - users
+      summary: get users details by associated barcode
+      parameters:
+        - in: path
+          required: true
+          type: integer
+          name: barcode
+          description: barcode associated with user
+      responses:
+        '200':
+          description: user's details
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: no user associated to the given barcode
+        '404':
+          description: barcode not found
+  /users/stats/:
+    get:
+      tags:
+        - users
+      summary: stats about users
+      responses:
+        '200':
+          description: stats
+          schema:
+            type: object
+            required:
+              - user_count
+              - active_count
+              - balance_sum
+            properties:
+              user_count:
+                type: integer
+              active_count:
+                type: integer
+              balance_sum:
+                description: as cents
+                type: integer
+        '500':
+          description: Server error
+  /images/:
+    get:
+      tags:
+        - image
+      description: Information about image handling
+      responses:
+        '204':
+          description: The serve is capable of handling images
+        '501':
+          description: not implemented
+    post:
+      tags:
+        - image
+      description: upload image
+      summary: image data
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: image
+          type: file
+          description: 'file to upload (jpg, png or gif)'
+          required: true
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Image'
+        '413':
+          description: uploaded file to large
+        '415':
+          description: unsupported media type
+        '500':
+          description: server error
+  '/images/{id}':
+    get:
+      tags:
+        - image
+      description: image metadata
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        '200':
+          description: image metadata
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Image'
+  '/images/{id}/img':
+    get:
+      tags:
+        - image
+      description: image data
+      summary: image data
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          required: true
+          description: Numeric ID of the image to get.
+      produces:
+        - image/png
+        - image/jpeg
+        - image/gif
+      responses:
+        '200':
+          description: image data blob
+        '404':
+          description: id not existent
+        '500':
+          description: server error i.e.
+  /barcodes/:
+    post:
+      tags:
+        - barcodes
+      summary: create a new barcode
+      parameters:
+        - in: body
+          required: true
+          name: barcode
+          schema:
+            type: object
+            properties:
+              barcode:
+                type: string
+              type:
+                type: string
+                description: product or user
+              linked:
+                description: id of linked object (product or user)
+                type: integer
+      responses:
+        '200':
+          description: created barcode
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Barcode'
+        '400':
+          description: bad request
+        '409':
+          description: a barcode with this name already exists
+        '500':
+          description: server error
+  '/barcodes/{id}/':
+    get:
+      tags:
+        - barcodes
+      summary: get details for a given barcode
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: details of barcode
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Barcode'
+        '404':
+          description: barcode not existent
+        '500':
+          description: server error
+    delete:
+      tags:
+        - barcodes
+      summary: delete the barcode
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+      responses:
+        '204':
+          description: barcode deleted
+        '404':
+          description: barcode not existent
+        '500':
+          description: server error
+    patch:
+      tags:
+        - barcodes
+      summary: update an existing barcode
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+        - in: body
+          name: barcode
+          required: false
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+              linked:
+                type: integer
+      responses:
+        '200':
+          description: barcode updated
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Barcode'
+        '400':
+          description: bad request
+        '404':
+          description: barcode not existent
+        '500':
+          description: server error
+  /denominations/:
+    post:
+      tags:
+        - denominations
+      summary: create a new denomination
+      parameters:
+        - in: body
+          required: true
+          name: denominations
+          schema:
+            type: object
+            properties:
+              amount:
+                type: integer
+              image:
+                description: id of linked image
+                type: integer
+      responses:
+        '200':
+          description: created denomination
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Denomination'
+        '400':
+          description: bad request
+        '409':
+          description: a denominations with this amount already exists
+        '500':
+          description: server error
+    get:
+      tags:
+        - denominations
+      summary: get a list of all configured denominations
+      responses:
+        '200':
+          description: list of denominations
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Denomination'
+        '400':
+          description: bad request
+        '409':
+          description: a denomination with this value already exists
+        '500':
+          description: server error
+  '/denominations/{id}/':
+    get:
+      tags:
+        - denominations
+      summary: get details of given denomination
+      description: foobar
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        '200':
+          description: details of denomination
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Denomination'
+        '400':
+          description: bad request
+        '404':
+          description: id not existent
+        '500':
+          description: server error
+    patch:
+      tags:
+        - denominations
+      summary: update a denomination
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          name: denominations
+          required: false
+          schema:
+            type: object
+            properties:
+              amount:
+                type: integer
+              image:
+                type: integer
+      responses:
+        '200':
+          description: details of updated denomination
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Denomination'
+        '400':
+          description: bad request
+        '404':
+          description: id not existent
+        '409':
+          description: a denomination with this value already exists
+        '500':
+          description: server error
+    delete:
+      tags:
+        - denominations
+      summary: delete a denomination
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        '204':
+          description: denomination deleted
+        '404':
+          description: id not existent
+        '500':
+          description: server error
+definitions:
+  Server:
+    type: object
+    required:
+      - version
+      - currency
+      - currency_before
+      - decimal_seperator
+      - energy
+    properties:
+      version:
+        type: string
+        default: 3.0.0
+      global_credit_limit:
+        type: integer
+        example: 2000
+        description: global credit limit in cent (subdevision of currency); to disable set to false
+      currency:
+        type: string
+        default: €
+        example: €
+      currency_before:
+        type: boolean
+        description: If true the currency symbol is show before the sum
+        default: false
+        example: false
+      decimal_seperator:
+        description: 'if None, the currency uses no subdevision and therefore no decimal seperator is used. E.g. in Sweden'
+        type: string
+        default: ','
+        example: ','
+      energy:
+        type: string
+        description: unit of energy e.g. kcal or kj
+        default: kcal
+        example: kcal
+      defaults:
+        type: object
+        description: defaults for new products
+        properties:
+          price:
+            type: integer
+            description: default price in cent
+            example: 150
+          package_size:
+            type: string
+            description: default package size
+            example: '0,33 ml pro Flasche'
+          caffeine:
+            type: integer
+            description: default caffeine contents in mg per 100ml/g
+            example: 20
+          alcohol:
+            type: integer
+            description: default volume percent of alcohol (with two decimal places)
+            example: 450
+          energy:
+            type: integer
+            description: default energy per 100g / 100ml without decimal places
+            example: 42
+          sugar:
+            type: integer
+            description: default sugar amount per 100g / 100ml with one decimal place
+            example: 123
+          active:
+            type: boolean
+            description: default weather a product is active upon creation or not
+            example: true
+  Image:
+    type: object
+    required:
+      - file_name
+      - created_at
+      - updated_at
+    properties:
+      file_name:
+        type: string
+        example: example.png
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  Product:
+    type: object
+    required:
+      - name
+      - id
+      - price
+      - created_at
+      - updated_at
+      - active
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      caffeine:
+        type: integer
+        description: mg of caffeine per 100 ml/mg/unit
+      alcohol:
+        type: integer
+        description: volume percent (with two decimal places)
+        example: 450
+      energy:
+        type: integer
+        description: energy per 100ml / 100g with no decimal place
+        example: 42
+      sugar:
+        type: integer
+        description: g sugar per 100g / 100ml with one decimal place
+        example: 108
+      price:
+        type: integer
+        default: 150
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      active:
+        type: boolean
+        default: true
+      image:
+        type: integer
+  User:
+    type: object
+    required:
+      - name
+      - id
+      - created_at
+      - updated_at
+      - balance
+      - active
+      - audit
+      - redirect
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      email:
+        type: string
+        format: email
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      balance:
+        description: in cents
+        type: integer
+      barcode:
+        type: string
+      active:
+        type: boolean
+        default: true
+      audit:
+        type: boolean
+        default: false
+      redirect:
+        type: boolean
+        default: true
+      avatar:
+        type: integer
+  Barcode:
+    type: object
+    required:
+      - id
+      - barcode
+      - type
+      - linked
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: integer
+      barcode:
+        type: string
+      type:
+        type: string
+        default: product
+      linked:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  Denomination:
+    type: object
+    required:
+      - amount
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: integer
+      amount:
+        description: amount in cents / subdevision of currency
+        type: integer
+      image:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time

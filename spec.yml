@@ -1,0 +1,364 @@
+swagger: '2.0'
+info:
+  description: API for transactions
+  version: 1.0.0
+  title: Space-Market
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /audits.json:
+    get:
+      summary: statistics about previous transactions
+      description: |
+        statistics about previous transactions
+      parameters:
+      - in: query
+        name: start_date[year]
+        required: false
+        type: integer
+      - in: query
+        name: start_date[month]
+        type: integer
+        minimum: 1
+        maximum: 12
+      - in: query
+        name: start_date[day]
+        type: integer
+        minimum: 1
+        maximum: 31
+      - in: query
+        name: end_date[year]
+        required: false
+        type: integer
+      - in: query
+        name: end_date[month]
+        type: integer
+        minimum: 1
+        maximum: 12
+      - in: query
+        name: end_date[day]
+        type: integer
+        minimum: 1
+        maximum: 31
+      responses:
+        200:
+          description: audits
+          schema:
+            type: object
+            required:
+              - sum
+              - payments_sum
+              - deposits_sum
+              - audits
+            properties:
+              sum:
+                type: string
+                pattern: '\d+(\.\d*)?'
+                format: float
+              payments_sum:
+                type: string
+                pattern: '\d+(\.\d*)?'
+                format: float
+              deposits_sum:
+                type: string
+                pattern: '\d+(\.\d*)?'
+                format: float
+              audits:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: date-time
+                    difference:
+                      type: string
+                      pattern: '\d+(\.\d*)?'
+                      format: float
+                    drink:
+                      type: integer
+  /drinks.json:
+    get:
+      summary: returns all drinks
+      responses:
+        200:
+          description: drinks
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Drink"
+    post:
+      summary: creates a new drink
+      parameters:
+        - in: body
+          name: drink
+          required: true
+          schema:
+            $ref: "#/definitions/Drink"
+      responses:
+        200:
+          description: newly created Drink
+          schema:
+            $ref: "#/definitions/Drink"
+
+  /drinks/{id}.json:
+    get:
+      summary: returns specific drink
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        200:
+          description: drink
+          schema:
+            $ref: "#/definitions/Drink"
+    patch:
+      summary: edits specific drink
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          name: drink
+          required: true
+          schema:
+            $ref: "#/definitions/Drink"
+      responses:
+        200:
+          description: edited Drink
+          schema:
+            $ref: "#/definitions/Drink"
+    delete:
+      summary: deletes specific drink
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        200:
+          description: successfully deleted
+  /users.json:
+    get:
+      summary: returns all users
+      responses:
+        200:
+          description: list of users
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+    post:
+      summary: creates new User
+      parameters:
+        - in: body
+          required: true
+          name: user
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        200:
+          description: new user
+          schema:
+            $ref: '#/definitions/User'
+  /users/{id}.json:
+    get:
+      summary: returns specific user
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        200:
+          description: user
+          schema:
+            $ref: '#/definitions/User'
+    patch:
+      summary: edits specific user
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          required: true
+          name: user
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        200:
+          description: edited user
+          schema:
+            $ref: '#/definitions/User'
+    delete:
+      summary: deletes user
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+      responses:
+        200:
+          description: success
+  /users/{id}/deposit.json:
+    get:
+      summary: adds amount (in €) to the balance of the user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: query
+          required: true
+          name: amount
+          type: number
+      responses:
+        200:
+          description: success
+  /users/{id}/pay.json:
+    get:
+      summary: subtracts amount (in €) from the balance of the user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: query
+          required: true
+          name: amount
+          type: number
+      responses:
+        200:
+          description: success
+  /users/{id}/drink.json:
+    get:
+      summary: buys drink with id drink from user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: query
+          required: true
+          name: drink
+          type: integer
+      responses:
+        200:
+          description: success
+  /users/{id}/buy_barcode.json:
+    post:
+      summary: buys drink with barcode for user with id
+      parameters:
+        - in: path
+          required: true
+          name: id
+          type: integer
+        - in: body
+          required: true
+          name: barcode
+          schema:
+            type: integer
+      responses:
+        200:
+          description: success
+  /users/stats.json:
+    get:
+      summary: stats about users
+      responses:
+        200:
+          description: stats
+          schema:
+            type: object
+            properties:
+              user_count:
+                type: integer
+              balamnce_sum:
+                type: string
+                pattern: '\d+(\.\d*)?'
+                format: float
+definitions:
+  Drink:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      caffeine:
+        type: integer
+        description: mg of caffeine per 100 ml
+      price:
+        type: string
+        default: "1.5"
+        pattern: '\d+(\.\d*)?'
+        format: float
+      logo_file_name:
+        type: string
+        format: uri
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      logo_content_type:
+        type: string
+        description: mimetype of logo
+      logo_file_size:
+        type: integer
+        description: size of logo in bytes
+      logo_updated_at:
+        type: string
+        format: date-time
+      active:
+        type: boolean
+        default: true
+      donation_recommendation:
+        type: string
+        description: "DEPRECATED: alias for price"
+        pattern: '\d+(\.\d*)?'
+        format: float
+      logo_url:
+        type: string
+        format: uri
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      email:
+        type: string
+        format: email
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      balance:
+        type: string
+        pattern: \d+(\.\d+)?
+        format: float
+      active:
+        type: boolean
+        default: true
+      audit:
+        type: boolean
+        default: false
+      redirect:
+        type: boolean

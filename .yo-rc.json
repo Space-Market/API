@@ -1,0 +1,11 @@
+{
+  "generator-openapi-repo": {
+    "importExistingSpec": true,
+    "importedSpec": "spec.yml",
+    "name": "Space-Market",
+    "repo": "Space-Market/API",
+    "splitSpec": false,
+    "samples": true,
+    "installSwaggerUI": true
+  }
+}
