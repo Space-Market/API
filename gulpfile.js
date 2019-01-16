@@ -10,7 +10,15 @@ var swaggerRepo = require('swagger-repo');
 
 var DIST_DIR = 'web_deploy';
 
-gulp.task('serve', ['build', 'watch', 'edit'], function() {
+const build = cb => exec('npm run build', function (err, stdout, stderr) {
+    console.log(stderr);
+    cb(err);
+  });
+const _reload = () => gulp.src(DIST_DIR).pipe(gulpConnect.reload());
+const reload = gulp.series(_reload, build);
+const watch = () =>
+  gulp.watch(['spec/**/*', 'web/**/*'], reload);
+const _serve = () => {
   portfinder.getPort({port: 3000}, function (err, port) {
     gulpConnect.server({
       root: [DIST_DIR],
@@ -23,28 +31,22 @@ gulp.task('serve', ['build', 'watch', 'edit'], function() {
       }
     });
   });
-});
-
-gulp.task('edit', function() {
+};
+const edit = () => {
   portfinder.getPort({port: 5000}, function (err, port) {
     var app = connect();
     app.use(swaggerRepo.swaggerEditorMiddleware());
     app.listen(port);
     util.log(util.colors.green('swagger-editor started http://localhost:' + port));
   });
-});
+};
+const serve = gulp.series(build, gulp.parallel(watch, edit, _serve));
 
-gulp.task('build', function (cb) {
-  exec('npm run build', function (err, stdout, stderr) {
-    console.log(stderr);
-    cb(err);
-  });
-});
 
-gulp.task('reload', ['build'], function () {
-  gulp.src(DIST_DIR).pipe(gulpConnect.reload())
-});
-
-gulp.task('watch', function () {
-  gulp.watch(['spec/**/*', 'web/**/*'], ['reload']);
-});
+module.exports = {
+  build,
+  serve,
+  watch,
+  edit,
+  reload,
+};
